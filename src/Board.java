@@ -19,23 +19,19 @@ public class Board {
 		}
 	}
 	
-	public int getBaordSize() {
-		return table.length;
-	}
-	
 	public boolean draw(Player player, int x, int y) {
-		
-		if (this.isGameOver() == true) {
-			System.out.println("Game Over");
-			return false;
-		}
 		
 		if (this.getAvailableLocations().isEmpty()) {
 			System.out.println("No cells available");
 			return false;
 		}
+		else if (this.isGameOver() == true) {
+			System.out.println("Game Over");
+			return false;
+		}
 		
-		Location cell = flatTable.get().filter(a -> a.isMatchLocation(x, y)).findFirst().orElse(null);
+		// Find location using x, y coordinate
+		Location cell = flatTable.get().filter(isMatchLocation(x, y)).findFirst().orElse(null);
 		
 		if (cell == null) {
 			System.out.println("Invalid location input!");
@@ -86,6 +82,7 @@ public class Board {
 		
 		cells = new Location[table.length];
 		
+		// Get location in {1,3} {2,2} {3,1}
 		for (int i = 1, j = table.length, index = 0; i <= table.length; i++, j--, index++) {
 			cells[index] = flatTable.get().filter(isMatchLocation(i, j)).findFirst().get();
 		}
@@ -100,13 +97,8 @@ public class Board {
 	}
 	
 	private Player getWinner(Location[] cells) {
-		
+		// Return player if all are same, else, return NONE
 		Player player = cells[0].getPlayer();
-		
-		if (player == Player.NONE) {
-			return Player.NONE;
-		}
-		
 		return Arrays.stream(cells).allMatch(x -> x.getPlayer() == player) ? player : Player.NONE;
 	}
 	

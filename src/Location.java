@@ -49,6 +49,4 @@ public class Location {
 	public String toString() {
 		return String.format("{%d, %d}", x, y);
 	}
-	
-	
 }
