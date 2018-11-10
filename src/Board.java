@@ -19,53 +19,107 @@ public class Board {
 		}
 	}
 	
-	public void draw(Player player, int x, int y) {
+	public int getBaordSize() {
+		return tbl.length;
+	}
+	
+	public boolean draw(Player player, int x, int y) {
+		
+		if (this.isGameOver() == true) {
+			System.out.println("Game Over");
+			return false;
+		}
+		
+		if (this.getAvailableCells().isEmpty()) {
+			System.out.println("No cells available");
+			return false;
+		}
 		
 		Cell cell = flatTable.get().filter(a -> a.isMatchLocation(x, y)).findFirst().orElse(null);
 		
-		if (cell != null && cell.isAvailable() == true) {
-			cell.setPlayer(player);
+		if (cell == null) {
+			System.out.println("Invalid location input!");
 		}
+		else if (cell.isAvailable() == false) {
+			System.out.println("Cell are not available");
+		}
+		else if (cell.isAvailable() == true) {
+			cell.setPlayer(player);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public List<Cell> getAvailableCells() {
 		return this.flatTable.get().filter(Cell::isAvailable).collect(Collectors.toList());
 	}
 	
-	public boolean isPlayerWin(Player player) {
-		
-		Predicate<Cell> isMatchPlayer = (x) -> x.getPlayer() == player;
-		
-		for (int i = 1; i <= 3; i++) {
-			
-			int a = i;
-			
-			if (flatTable.get().filter(x -> x.getX() == a).allMatch(isMatchPlayer) == true) {
-				return true;
-			}
-			
-			if (flatTable.get().filter(y -> y.getY() == a).allMatch(isMatchPlayer) == true) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
 	public Player getWinner() {
 		
-		for (int i = 1; i <= 3; i++) {
+		Player winner = Player.NONE;
+		
+		// Check rows and columns
+		for (int i = 1; i <= tbl.length; i++) {
 			
-			int a = i;
+			winner = this.getWinner(getRow(i));
 			
-			flatTable.get().filter(x -> x.getX() == a).collect(Collectors.toList());
+			if (winner != Player.NONE) {
+				return winner;
+			}
+			
+			winner = this.getWinner(getColumn(i));
+			
+			if (winner != Player.NONE) {
+				return winner;
+			}
 		}
 		
-		return null;
+		// Check diagonal winner
+		Cell[] cells = flatTable.get().filter(x -> x.getX() == x.getY()).toArray(Cell[]::new);
+		
+		winner = this.getWinner(cells);
+		
+		if (winner != Player.NONE) {
+			return winner;
+		}
+		
+		cells = new Cell[tbl.length];
+		
+		for (int i = 1, j = tbl.length, index = 0; i <= tbl.length; i++, j--, index++) {
+			cells[index] = flatTable.get().filter(isMatchLocation(i, j)).findFirst().get();
+		}
+		
+		winner = this.getWinner(cells);
+		
+		if (winner != Player.NONE) {
+			return winner;
+		}
+		
+		return Player.NONE;
+	}
+	
+	private Player getWinner(Cell[] cells) {
+		
+		Player player = cells[0].getPlayer();
+		
+		if (player == Player.NONE) {
+			return Player.NONE;
+		}
+		
+		return Arrays.stream(cells).allMatch(x -> x.getPlayer() == player) ? player : Player.NONE;
+	}
+	
+	private Cell[] getRow(int n) {
+		return flatTable.get().filter(x -> x.getX() == n).toArray(Cell[]::new);
+	}
+	
+	private Cell[] getColumn(int n) {
+		return flatTable.get().filter(x -> x.getY() == n).toArray(Cell[]::new);
 	}
 	
 	public boolean isGameOver() {
-		return this.getAvailableCells().isEmpty();
+		return this.getAvailableCells().isEmpty() || this.getWinner() != Player.NONE;
 	}
 	
 	public void printBoard() {
@@ -81,5 +135,8 @@ public class Board {
 			System.out.println();
 		}
 	}
-
+	
+	private Predicate<Cell> isMatchLocation(int x, int y) {
+		return (t) -> t.isMatchLocation(x, y);
+	}
 }
