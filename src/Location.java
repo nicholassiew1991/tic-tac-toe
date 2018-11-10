@@ -1,5 +1,5 @@
 
-public class Cell {
+public class Location {
 	
 	private int x;
 	
@@ -7,7 +7,7 @@ public class Cell {
 	
 	private Player player;
 
-	public Cell(int x, int y) {
+	public Location(int x, int y) {
 		this.x = x;
 		this.y = y;
 		this.player = Player.NONE;

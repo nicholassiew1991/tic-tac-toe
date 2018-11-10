@@ -24,7 +24,7 @@ public class Game {
 	
 	public void start() {
 		
-		Scanner intScanner = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		
 		System.out.println("Start Game");
 		
@@ -33,16 +33,16 @@ public class Game {
 			board.printBoard();
 			System.out.println();
 			
-			String strLocations = board.getAvailableCells().stream().map(Object::toString).collect(Collectors.joining(", "));
+			String strLocations = board.getAvailableLocations().stream().map(Object::toString).collect(Collectors.joining(", "));
 			System.out.println("Available location: " + strLocations);
 			
 			try {
 				System.out.printf("Player %c - Enter location x: ", currentPlayer.getSymbol());
-				int x = intScanner.nextInt();
+				int x = scanner.nextInt();
 				System.out.printf("Player %c - Enter location y: ", currentPlayer.getSymbol());
-				int y = intScanner.nextInt();
+				int y = scanner.nextInt();
 				
-				Cell location = board.getAvailableCells().stream().filter(a -> a.getX() == x && a.getY() == y).findAny().orElse(null);
+				Location location = board.getAvailableLocations().stream().filter(a -> a.getX() == x && a.getY() == y).findAny().orElse(null);
 				
 				if (location == null) {
 					System.out.println("Location is invalid or not available.");
@@ -58,7 +58,7 @@ public class Game {
 			}
 			catch (InputMismatchException e) {
 				System.err.println("Invalid input.");
-				intScanner.nextLine(); // clear buffer in scanner when input format invalid
+				scanner.nextLine(); // clear buffer in scanner when input format invalid
 				continue;
 			}
 			
@@ -66,31 +66,27 @@ public class Game {
 
 		System.out.println();
 		System.out.println("Game Over");
+		this.winner = board.getWinner();
+		this.printGameResult();
+		
+		scanner.close();
+	}
+	
+	public void printGameResult() {
 		System.out.println();
+		System.out.println("--------------------------------------------");
 		board.printBoard();
 		System.out.println();
-		
-		this.winner = board.getWinner();
 		
 		if (this.winner == Player.NONE) {
 			System.out.println("Draw");
 		}
 		else {
-			System.out.printf("Player %c win\n", this.winner.getSymbol());
+			System.out.println("Winner: Player " + this.winner.getSymbol());
 			System.out.println("Steps taken: " + this.playerStep.get(this.winner));
 		}
-	}
-	
-	public void printBoard() {
-		this.board.printBoard();
-	}
-	
-	public Player getWinner() {
-		return this.winner;
-	}
-	
-	public int getWinnerStepCount() {
-		return this.playerStep.get(this.winner);
+		
+		System.out.println("--------------------------------------------");
 	}
 	
 	private void updatePlayerStep() {

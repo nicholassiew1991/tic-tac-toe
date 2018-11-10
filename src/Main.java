@@ -59,11 +59,7 @@ public class Main {
 	
 	private static Consumer<Game> printGameHistoryConsumer() {
 		return x -> {
-			System.out.println();
-			x.printBoard();
-			System.out.println();
-			System.out.println("Winner: Player " + x.getWinner().getSymbol());
-			System.out.println("Step Taken: " + x.getWinnerStepCount());
+			x.printGameResult();
 		};
 	}
 }

@@ -7,20 +7,20 @@ import java.util.stream.Stream;
 
 public class Board {
 	
-	private Cell[][] tbl = new Cell[3][3];
+	private Location[][] table = new Location[3][3];
 	
-	private Supplier<Stream<Cell>> flatTable = () -> Arrays.stream(tbl).flatMap(Arrays::stream);
+	private Supplier<Stream<Location>> flatTable = () -> Arrays.stream(table).flatMap(Arrays::stream);
 	
 	public Board() {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
-				tbl[i][j] = new Cell(i + 1, j + 1);
+				table[i][j] = new Location(i + 1, j + 1);
 			}
 		}
 	}
 	
 	public int getBaordSize() {
-		return tbl.length;
+		return table.length;
 	}
 	
 	public boolean draw(Player player, int x, int y) {
@@ -30,12 +30,12 @@ public class Board {
 			return false;
 		}
 		
-		if (this.getAvailableCells().isEmpty()) {
+		if (this.getAvailableLocations().isEmpty()) {
 			System.out.println("No cells available");
 			return false;
 		}
 		
-		Cell cell = flatTable.get().filter(a -> a.isMatchLocation(x, y)).findFirst().orElse(null);
+		Location cell = flatTable.get().filter(a -> a.isMatchLocation(x, y)).findFirst().orElse(null);
 		
 		if (cell == null) {
 			System.out.println("Invalid location input!");
@@ -51,8 +51,8 @@ public class Board {
 		return false;
 	}
 	
-	public List<Cell> getAvailableCells() {
-		return this.flatTable.get().filter(Cell::isAvailable).collect(Collectors.toList());
+	public List<Location> getAvailableLocations() {
+		return this.flatTable.get().filter(Location::isAvailable).collect(Collectors.toList());
 	}
 	
 	public Player getWinner() {
@@ -60,7 +60,7 @@ public class Board {
 		Player winner = Player.NONE;
 		
 		// Check rows and columns
-		for (int i = 1; i <= tbl.length; i++) {
+		for (int i = 1; i <= table.length; i++) {
 			
 			winner = this.getWinner(getRow(i));
 			
@@ -76,7 +76,7 @@ public class Board {
 		}
 		
 		// Check diagonal winner
-		Cell[] cells = flatTable.get().filter(x -> x.getX() == x.getY()).toArray(Cell[]::new);
+		Location[] cells = flatTable.get().filter(x -> x.getX() == x.getY()).toArray(Location[]::new);
 		
 		winner = this.getWinner(cells);
 		
@@ -84,9 +84,9 @@ public class Board {
 			return winner;
 		}
 		
-		cells = new Cell[tbl.length];
+		cells = new Location[table.length];
 		
-		for (int i = 1, j = tbl.length, index = 0; i <= tbl.length; i++, j--, index++) {
+		for (int i = 1, j = table.length, index = 0; i <= table.length; i++, j--, index++) {
 			cells[index] = flatTable.get().filter(isMatchLocation(i, j)).findFirst().get();
 		}
 		
@@ -99,7 +99,7 @@ public class Board {
 		return Player.NONE;
 	}
 	
-	private Player getWinner(Cell[] cells) {
+	private Player getWinner(Location[] cells) {
 		
 		Player player = cells[0].getPlayer();
 		
@@ -110,33 +110,26 @@ public class Board {
 		return Arrays.stream(cells).allMatch(x -> x.getPlayer() == player) ? player : Player.NONE;
 	}
 	
-	private Cell[] getRow(int n) {
-		return flatTable.get().filter(x -> x.getX() == n).toArray(Cell[]::new);
+	private Location[] getRow(int n) {
+		return flatTable.get().filter(x -> x.getX() == n).toArray(Location[]::new);
 	}
 	
-	private Cell[] getColumn(int n) {
-		return flatTable.get().filter(x -> x.getY() == n).toArray(Cell[]::new);
+	private Location[] getColumn(int n) {
+		return flatTable.get().filter(x -> x.getY() == n).toArray(Location[]::new);
 	}
 	
 	public boolean isGameOver() {
-		return this.getAvailableCells().isEmpty() || this.getWinner() != Player.NONE;
+		return this.getAvailableLocations().isEmpty() || this.getWinner() != Player.NONE;
 	}
 	
 	public void printBoard() {
-
-		for (int i = 0; i < tbl.length; i++) {
-			
-			System.out.print("|");
-			
-			for (int j = 0; j < tbl[i].length; j++) {
-				System.out.print(tbl[i][j].getPlayer().getSymbol() + "|");
-			}
-			
-			System.out.println();
+		for (int i = 1; i <= table.length; i++) {
+			String str = Arrays.stream(this.getRow(i)).map(x -> String.valueOf(x.getPlayer().getSymbol())).collect(Collectors.joining("|"));
+			System.out.println("|" + str + "|");
 		}
 	}
-	
-	private Predicate<Cell> isMatchLocation(int x, int y) {
+
+	private Predicate<Location> isMatchLocation(int x, int y) {
 		return (t) -> t.isMatchLocation(x, y);
 	}
 }
