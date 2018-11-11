@@ -69,7 +69,6 @@ public class Game {
 		this.winner = board.getWinner();
 		this.printGameResult();
 		
-		scanner.close();
 	}
 	
 	public void printGameResult() {

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -7,14 +8,14 @@ import java.util.stream.Stream;
 
 public class Board {
 	
-	private Location[][] table = new Location[3][3];
+	private static final int BOARD_SIZE = 3;
 	
-	private Supplier<Stream<Location>> flatTable = () -> Arrays.stream(table).flatMap(Arrays::stream);
+	private List<Location> locations = new ArrayList<>();
 	
 	public Board() {
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				table[i][j] = new Location(i + 1, j + 1);
+		for (int i = 1; i <= Board.BOARD_SIZE; i++) {
+			for (int j = 1; j <= Board.BOARD_SIZE; j++) {
+				locations.add(new Location(i, j));
 			}
 		}
 	}
@@ -27,7 +28,7 @@ public class Board {
 		}
 		
 		// Find location using x, y coordinate
-		Location cell = flatTable.get().filter(isMatchLocation(x, y)).findFirst().orElse(null);
+		Location cell = locations.stream().filter(isMatchLocation(x, y)).findFirst().orElse(null);
 		
 		if (cell == null) {
 			System.out.println("Invalid location input!");
@@ -44,7 +45,7 @@ public class Board {
 	}
 	
 	public List<Location> getAvailableLocations() {
-		return this.flatTable.get().filter(Location::isAvailable).collect(Collectors.toList());
+		return this.locations.stream().filter(Location::isAvailable).collect(Collectors.toList());
 	}
 	
 	public Player getWinner() {
@@ -52,7 +53,7 @@ public class Board {
 		Player winner = Player.NONE;
 		
 		// Check rows and columns
-		for (int i = 1; i <= table.length; i++) {
+		for (int i = 1; i <= Board.BOARD_SIZE; i++) {
 			
 			winner = this.getWinner(getRow(i));
 			
@@ -68,7 +69,7 @@ public class Board {
 		}
 		
 		// Check diagonal winner
-		Location[] cells = flatTable.get().filter(x -> x.getX() == x.getY()).toArray(Location[]::new);
+		Location[] cells = locations.stream().filter(x -> x.getX() == x.getY()).toArray(Location[]::new);
 		
 		winner = this.getWinner(cells);
 		
@@ -76,11 +77,11 @@ public class Board {
 			return winner;
 		}
 		
-		cells = new Location[table.length];
+		cells = new Location[Board.BOARD_SIZE];
 		
 		// Get location in {1,3} {2,2} {3,1}
-		for (int i = 1, j = table.length, index = 0; i <= table.length; i++, j--, index++) {
-			cells[index] = flatTable.get().filter(isMatchLocation(i, j)).findFirst().get();
+		for (int i = 1, j = Board.BOARD_SIZE, index = 0; i <= Board.BOARD_SIZE; i++, j--, index++) {
+			cells[index] = locations.stream().filter(isMatchLocation(i, j)).findFirst().get();
 		}
 		
 		winner = this.getWinner(cells);
@@ -99,11 +100,11 @@ public class Board {
 	}
 	
 	private Location[] getRow(int n) {
-		return flatTable.get().filter(x -> x.getX() == n).toArray(Location[]::new);
+		return locations.stream().filter(x -> x.getX() == n).toArray(Location[]::new);
 	}
 	
 	private Location[] getColumn(int n) {
-		return flatTable.get().filter(x -> x.getY() == n).toArray(Location[]::new);
+		return locations.stream().filter(x -> x.getY() == n).toArray(Location[]::new);
 	}
 	
 	public boolean isGameOver() {
@@ -111,7 +112,7 @@ public class Board {
 	}
 	
 	public void printBoard() {
-		for (int i = 1; i <= table.length; i++) {
+		for (int i = 1; i <= Board.BOARD_SIZE; i++) {
 			String str = Arrays.stream(this.getRow(i)).map(x -> String.valueOf(x.getPlayer().getSymbol())).collect(Collectors.joining("|"));
 			System.out.println("|" + str + "|");
 		}
