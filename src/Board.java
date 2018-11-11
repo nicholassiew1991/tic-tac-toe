@@ -21,11 +21,7 @@ public class Board {
 	
 	public boolean draw(Player player, int x, int y) {
 		
-		if (this.getAvailableLocations().isEmpty()) {
-			System.out.println("No cells available");
-			return false;
-		}
-		else if (this.isGameOver() == true) {
+		if (this.isGameOver() == true) {
 			System.out.println("Game Over");
 			return false;
 		}
@@ -37,7 +33,7 @@ public class Board {
 			System.out.println("Invalid location input!");
 		}
 		else if (cell.isAvailable() == false) {
-			System.out.println("Cell are not available");
+			System.out.println("Location are not available");
 		}
 		else if (cell.isAvailable() == true) {
 			cell.setPlayer(player);
